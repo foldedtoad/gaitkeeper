@@ -19,3 +19,8 @@ record.
 To stop recording, press the "Stop" button.  This will close the logging file and make it 
 available on the SD-card.  You can use one of the file manager apps available on Android to copy
 the file to, say, some cloud storage such as google drive or dropbbox.
+
+
+Development was on a Samsung Galaxy II with Android version 4.04.  While this is a rather old 
+Android device, it was cheap and I didn't want to worry about damaging a new(er) Android phone. 
+I can live with this old Android getting wet and going south on me: no big money loss.  :)
