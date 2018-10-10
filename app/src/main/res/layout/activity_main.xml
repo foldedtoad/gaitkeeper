@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ap="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:keepScreenOn="true"
+        android:orientation="horizontal"
+        android:paddingBottom="30dp"
+        android:paddingTop="10dp">
+
+        <Button
+            android:id="@+id/btnStart"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/start"
+            android:textSize="50sp" />
+
+        <Button
+            android:id="@+id/btnStop"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/stop"
+            android:textSize="50sp" />
+
+    </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/radioGait"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioWalk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="@string/radio_walk"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/radioJog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/radio_jog"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/radioRun"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/radio_run"
+            android:textSize="12sp" />
+
+        <RadioButton
+            android:id="@+id/radioSprint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/radio_sprint"
+            android:textSize="12sp" />
+
+    </RadioGroup>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <com.androidplot.xy.XYPlot
+                android:id="@+id/dynamicPlot"
+                style="@style/APDefacto.Light"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                ap:domainTitle="time"
+                ap:lineLabelRotationBottom="-45"
+                ap:lineLabels="left|bottom"
+                ap:rangeTitle="value" />
+
+        </LinearLayout>
+
+</LinearLayout>
