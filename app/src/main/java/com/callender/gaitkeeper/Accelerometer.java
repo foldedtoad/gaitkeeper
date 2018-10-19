@@ -15,11 +15,14 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
@@ -40,6 +43,9 @@ public class Accelerometer extends Activity implements SensorEventListener, OnCl
 
     SensorManager sensorManager;
     Sensor accelerometer = null;
+
+    double gravity[] = {0,0,0};
+    long sampleCount = 0;
 
     XYPlot dynamicPlot;
 
@@ -193,6 +199,29 @@ public class Accelerometer extends Activity implements SensorEventListener, OnCl
         dynamicPlot.setDomainBoundaries(0, HISTORY_SIZE, BoundaryMode.FIXED);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item1:
+                Toast.makeText(getApplicationContext(),"Version 1.0",Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.menu_item2:
+                Toast.makeText(getApplicationContext(),"Gaitkeeper, (C) 2018 Callender-Consulting",Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.menu_item3:
+                Toast.makeText(getApplicationContext(),"no testing implemented (yet)",Toast.LENGTH_LONG).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     /*
      *   Retrieve the label text for the currently selected radio button --
      */
@@ -220,10 +249,29 @@ public class Accelerometer extends Activity implements SensorEventListener, OnCl
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        // Remove oldest vector data.
-        if (axis_X_Series.size() > HISTORY_SIZE)
-            axis_X_Series.removeFirst();
+        // Get linear acceleration by removing gravity with Low-Pass filter.
+        // See Android SensorManager docs for details.
+        final double alpha = 0.8;
+        double linear_acceleration[] = {0,0,0};
 
+        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+        linear_acceleration[0] = event.values[0] - gravity[0];
+        linear_acceleration[1] = event.values[1] - gravity[1];
+        linear_acceleration[2] = event.values[2] - gravity[2];
+
+        // Wait for 5 samples to pass:  This gives Low-Pass filter time to stablize.
+        if (sampleCount < 5) {
+            sampleCount++;
+            return;
+        }
+
+        // Remove oldest vector data from plot data series.
+        if (axis_X_Series.size() > HISTORY_SIZE) {
+            axis_X_Series.removeFirst();
+        }
         if (axis_Y_Series.size() > HISTORY_SIZE) {
             axis_Y_Series.removeFirst();
         }
@@ -231,10 +279,10 @@ public class Accelerometer extends Activity implements SensorEventListener, OnCl
             axis_Z_Series.removeFirst();
         }
 
-        // Add the latest value to lists.
-        axis_X_Series.addLast(null, event.values[0] * SCALE_FACTOR);
-        axis_Y_Series.addLast(null, event.values[1] * SCALE_FACTOR);
-        axis_Z_Series.addLast(null, event.values[2] * SCALE_FACTOR);
+        // Add the latest value to plot lists.
+        axis_X_Series.addLast(null, linear_acceleration[0] * SCALE_FACTOR);
+        axis_Y_Series.addLast(null, linear_acceleration[1] * SCALE_FACTOR);
+        axis_Z_Series.addLast(null, linear_acceleration[2] * SCALE_FACTOR);
 
         // redraw the plots:
         dynamicPlot.redraw();
@@ -242,7 +290,10 @@ public class Accelerometer extends Activity implements SensorEventListener, OnCl
         // Write data to dataFile
         long timestamp = System.currentTimeMillis();
 
-        AccelData data = new AccelData(timestamp, event.values[0], event.values[1], event.values[2]);
+        AccelData data = new AccelData(timestamp,
+                linear_acceleration[0],
+                linear_acceleration[1],
+                linear_acceleration[2]);
 
         if (writer != null) {
             try {
@@ -363,6 +414,8 @@ public class Accelerometer extends Activity implements SensorEventListener, OnCl
 
                 btnStart.setEnabled(false);
                 btnStop.setEnabled(true);
+
+                sampleCount = 0;
 
                 tone.startTone(ToneGenerator.TONE_PROP_ACK,250);
 
